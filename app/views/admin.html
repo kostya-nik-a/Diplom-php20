@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <title>Test</title>
+</head>
+<body>
+<div> <!-- центрирующий блок -->
+    <div> <!-- Верхнее меню-->
+        <ul class="nav justify-content-end">
+            <li class="nav-item">
+                <a class="nav-link active" href="#">ТЕМЫ</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">Link</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">Link</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link disabled" href="admins.php" target="_self">АДМИНИСТРАТОРЫ</a>
+            </li>
+        </ul>
+    </div>
+
+    <div style="display: inline-block; width: 20%;"> Здесь отображается список категорий
+        <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+            <?php
+                $categories = getAllCategories();
+
+                foreach ($categories as $category) {
+                    ?>
+                    <a class="nav-link active" id="v-pills-home-tab" data-toggle="pill" href="#v-pills-home" role="tab"
+                       aria-controls="v-pills-home" aria-selected="true">
+                        <?php
+                        echo $category['category_name'];
+                        ?>
+                    </a><br>
+                    <?php
+                }
+            ?>
+            <form method="POST" action="" class="form-inline">
+                <div class="form-row align-items-center">
+                    <input type="text" name="category_name" placeholder="name" value="" class="form-control">
+                    <input type="hidden" name="user_id" value="<?= $_SESSION['user_id']?>">
+                    <button type="submit" name="action" value="add" class="btn btn-success">Добавить категорию</button><br>
+                </div>
+            </form>
+            <form method="POST" action="" class="form-inline">
+                <div class="form-row align-items-center">
+                    <div class="form-group">
+                        <label for="sort">Категории:</label>
+                        <select name="sort_by" id="sort" class="form-control">
+                            <?php
+                            $categories = getAllCategories();
+
+                            foreach ($categories as $category) {
+                                ?>
+                                <option value="description"><?php
+                                    echo $category['category_name'];
+                                    ?></option>
+                                <?php
+                            }
+                            ?>
+                        </select>
+                    </div>
+                    <input type="text" name="subject_name" placeholder="name" value="" class="form-control">
+                    <input type="hidden" name="user_id" value="<?= $_SESSION['user_id']?>">
+                    <button type="submit" name="action" value="add_subject" class="btn btn-success">Создать тему</button><br>
+                </div>
+            </form>
+            <?php foreach ($errors as $error): ?>
+                <div class="alert alert-danger"><?= $error ?></div>
+            <?php endforeach; ?>
+        </div>
+        <div class="tab-content" id="v-pills-tabContent">
+            <div class="tab-pane fade show active" id="v-pills-home" role="tabpanel" aria-labelledby="v-pills-home-tab">...</div>
+            <div class="tab-pane fade" id="v-pills-profile" role="tabpanel" aria-labelledby="v-pills-profile-tab">...</div>
+            <div class="tab-pane fade" id="v-pills-messages" role="tabpanel" aria-labelledby="v-pills-messages-tab">...</div>
+            <div class="tab-pane fade" id="v-pills-settings" role="tabpanel" aria-labelledby="v-pills-settings-tab">...</div>
+        </div>
+    </div>
+
+    <div style="display: inline-block; width: 59%; margin-bottom: 20px;">
+        <div class="col-lg-8">
+            <form method="POST" class="form-inline">
+                <div class="form-group">
+                    <label for="sort">Сортировать по:</label>
+                    <select name="sort_by" id="sort" class="form-control">
+                        <option selected disabled>Выберите тип сортировки</option>
+                        <option value="description">Вопросу</option>
+                        <option value="category">Категория</option>
+                        <option value="date_created">Дате добавления</option>
+                        <option value="status">Статус ответа</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <input type="submit" name="sort" value="Отсортировать" class="btn btn-default">
+                </div>
+            </form>
+        </div>
+        <div>
+            <br>
+        </div>
+        <!--
+        <div class="col-lg-9">
+            <form method="POST" action="" class="form-inline">
+                <div class="form-row align-items-center">
+                    <input type="text" name="email" placeholder="e-mail" value="" class="form-control">
+                    <textarea name="question" placeholder="your question" cols="70" rows="3" class="form-control"></textarea>
+                    <input type="hidden" name="user_id" value="<?= $_SESSION['user_id']?>">
+                    <input type="hidden" name="user_id_creater" value="<?= $_SESSION['user_id']?>">
+                    <button type="submit" name="action" value="add_question" class="btn btn-success">Добавить вопрос</button><br>
+                </div>
+            </form>
+            <?php foreach ($errors as $error): ?>
+                <div class="alert alert-danger"><?= $error ?></div>
+            <?php endforeach; ?>
+        </div>
+        -->
+
+        <div>
+        <table class="table table-hover table-striped m-t-xl">
+            <thead>
+            <tr>
+                <th>Вопрос</th>
+                <th>E-mail</th>
+                <th>Visible</th>
+                <th>Date creation</th>
+                <th>Статус</th>
+                <th>Who answered</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <?php
+                if (isset($_POST['sort_by'])) {
+                    $questions = getAllQuestions($_POST['sort_by']);
+                } else {
+                    $questions = getAllQuestions(null);
+                }
+
+                foreach ($questions as $question) { //id_question, question_text, creation_date, id_status, id_category, visible, answer_is_done
+                ?>
+                    <td><?= $question['question_text'] ?></td>
+                    <td><?= $question['email'] ?></td>
+                    <td><?= $question['visible'] ?></td>
+                    <td><?= $question['creation_date'] ?></td>
+
+                    <?php
+                        if ($question['answer_is_done'] == '') {
+                    ?>
+                    <td>Без ответа</td>
+                    <?php
+                    }else {
+                            ?>
+                            <td><?= $question['answer_is_done'] ?></td>
+                            <?php
+                        }
+                    $makeUser = getWhoAnswerTheQuestion($question['user_id']);
+                    foreach ($makeUser as $maker) {
+                        ?>
+                        <td><?= $maker['login'] ?></td>
+                        <td><?= $maker['fio'] ?></td>
+                        <?php
+                    }
+                    ?>
+                    <td>
+                        <button type="submit" class="btn btn-success">
+                                <a style="text-decoration: none; color: white;" href="?id_question=<?=$question['id_question'] ?>&action=change">Ответить</a>
+                        </button>
+
+                        <button type="submit" class="btn btn-danger">
+                            <a style="text-decoration: none; color: white;" href="?id_question=<?=$question['id_question'] ?>&action=delete">Удалить</a>
+                        </button>
+                    </td>
+
+            <form method="POST" action="" class="form-inline">
+            <?php
+                    print_r($_POST);
+                if (!empty($_GET) && $_GET['action'] == 'change' && $_GET['id_question'] == $question['id_question'] ) {
+            ?>
+                    <textarea class="form-control" name="answer_text" placeholder="your answer" cols="70" rows="3"></textarea>
+                    <input type="checkbox" name="visible" value="1" id="visible"><label for="visible">Скрытый ответ</label><br>
+                    <input type="hidden" name="user_id" value="<?= $_SESSION['user_id']?>">
+                    <input type="hidden" name="id_question" value="<?= $question['id_question']?>">
+                    <input type="hidden" name="answer_is_done" value="1">
+                    <button type="submit" name="action" value="answer" class="btn btn-success">Сохранить</button>
+            <?php
+                }
+            ?>
+            </form>
+            <?php
+            }
+            ?>
+            </tr>
+            </tbody>
+        </table>
+        </div>
+
+    </div>
+
+
+    <div style="display: inline-block; width: 20%;">
+        <p>АДМИНИСТРАТОРЫ</p>
+        <a href="admins.php" target="_self">Работа с администраторами</a>
+
+
+    </div>
+
+
+</div>
+
+
+</body>
+</html>

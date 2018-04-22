@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,600,700' rel='stylesheet' type='text/css'>
+
+    <link rel="stylesheet" href="/css/reset.css"> <!-- CSS reset -->
+    <link rel="stylesheet" href="/css/style.css"> <!-- Resource style -->
+    <script src="/js/modernizr.js"></script> <!-- Modernizr -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <title>Test</title>
+</head>
+<body>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-12">
+            <div>
+                <h1 style="display: inline-block; width: 90%;" >Добро пожаловать, {{ user }}.</h1>
+                <button type="button" class="btn btn-dark btn-lg"><a href="/logout.php">Выйти</a></button>
+            </div>
+
+            <div class="row" style="padding: 10px;">
+                <div class="col-lg-9">
+                    <form method="POST" action="" class="form-inline">
+                        <div class="form-row align-items-center">
+                            <input type="text" name="login" placeholder="Login" value="" class="form-control">
+                            <input type="text" name="password" placeholder="password" value="" class="form-control">
+                            <input type="text" name="email" placeholder="e-mail" value="" class="form-control">
+                            <input type="text" size="50" name="fio" placeholder="First and last name" value="" class="form-control">
+                            <input type="hidden" name="user_id" value="<?= $_SESSION['user_id']?>">
+                            <input type="hidden" name="user_id_creater" value="<?= $_SESSION['user_id']?>">
+                            <button type="submit" name="action" value="add" class="btn btn-success">Добавить администратора</button><br>
+                        </div>
+                    </form>
+                    {% for error in errors %}
+                    <div class="alert alert-danger">{{ error }}</div>
+                    {% endfor %}
+                </div>
+                <div class="col-lg-8">
+                    <form method="POST" class="form-inline">
+                        <div class="form-group">
+                            <label for="sort">Сортировать по:</label>
+                            <select name="sort_by" id="sort" class="form-control">
+
+                                <option selected disabled>Выберите тип сортировки</option>
+                                <option value="fio">ФИО</option>
+                                <option value="login">Login</option>
+                                <option value="date_created">Дате добавления</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <input type="submit" name="sort" value="Отсортировать" class="btn btn-default">
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <table class="table table-hover table-striped m-t-xl">
+                <thead>
+                <tr>
+                    <th>Login</th>
+                    <th>Password</th>
+                    <th>E-mail</th>
+                    <th>First and Last name</th>
+                    <th>Date creation</th>
+                    <th>Who create</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    {% for user in users %}
+                    <form method="POST" action="" class="form-inline">
+                        <td>{{ user.login }}</td>
+                        <td>
+                            {% if $_GET is empty %}
+                            <?php
+                                if (!empty($_GET) && $_GET['action'] == 'change' && $_GET['user_id'] == $user['user_id']) {
+                            ?>
+                            <input type="hidden" name="user_id" value="<?= $user['user_id'] ?>">
+                            <input type="text" size="30" name="action" placeholder="new password" value="" class="form-control">
+
+                            {% if $_GET is empty %}
+                            {% else %}
+                            {{ user.password }}
+                            {% endif %}
+                        </td>
+                        <td>{{ user.email }}</td>
+                        <td>{{ user.fio }}</td>
+                        <td>{{ user.date_added }}</td>
+
+                        {% for maker in userMaker %}
+                        <td>{{ maker.login }}</td>
+                        {% endfor %}
+                        <td>
+                            <?php
+                                    if (!empty($_GET) && $_GET['action'] == 'change' && $_GET['user_id'] == $user['user_id'] ) {
+                                ?>
+                            <button type="submit" name="action" value="update" class="btn btn-success">Сохранить</button>
+                            <?php
+                                    }
+                                    else {
+                                ?>
+                            <button type="submit" class="btn btn-success">
+                                <a style="text-decoration: none; color: white;" href="?user_id=<?= $user['user_id'] ?>&action=change">Изменить пароль</a>
+                            </button>
+                            <button type="submit" class="btn btn-danger">
+                                <a style="text-decoration: none; color: white;" href="?user_id=<?= $user['user_id'] ?>&action=delete">Удалить</a>
+                            </button>
+                        </td>
+                    </form>
+                </tr>
+                {% endfor %}
+
+                </tbody>
+            </table>
+
+            <button type="button" class="btn btn-success btn-lg"><a href="main_admin.php">Назад</a></button>
+
+        </div>
+    </div>
+</div>
+
+
+</body>
+</html>
