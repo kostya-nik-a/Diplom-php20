@@ -22,6 +22,10 @@ if (isset($_POST['sort_by'])) {
     $users = getAllUsers($_SESSION['user_id'], null);
 }
 
+foreach ($users as $user) {
+    $userMaker = getWhoCreateUser($user['user_id_creater']);
+}
+
 if (!empty($_POST['action'])) {
     $params = array_merge([], $_POST);
     switch ($_POST['action']) {
